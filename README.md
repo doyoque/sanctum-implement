@@ -35,3 +35,7 @@ cd sanctum-implement/
 # this command will boot up nginx, MySQL, and app stack
 docker-compose up
 ```
+
+## Postman Collection and Environment
+
+For collection and environment variable is available in `postman/` directory.
