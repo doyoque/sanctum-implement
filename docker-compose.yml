@@ -1,2 +1,64 @@
 version: '3'
 services:
+
+  # PHP service
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: sanctum-app/php
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAG: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/config/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - sanctum-network
+
+  # Nginx services
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8001:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/config/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - sanctum-network
+
+  # MySQL services
+  database:
+    image: mysql:5.7.22
+    container_name: database
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3316:3306"
+    environment:
+      MYSQL_DATABASE: sanctum
+      MYSQL_ROOT_PASSWORD: secret123
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - database:/var/lib/mysql
+      - ./docker/config/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - sanctum-network
+
+# Docker networks
+networks:
+  sanctum-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  database:
+    driver: local
